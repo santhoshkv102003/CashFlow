@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d0d1a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>PayBuddy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <header class="header">
+    <span class="logo-icon">₹</span>
+    <span class="logo-text">PayBuddy</span>
+  </header>
+
+  <!-- MAIN TAB STRIP -->
+  <div class="tab-strip">
+    <button class="tab-btn active" id="tabFriends"  onclick="switchTab('friends')">Friends</button>
+    <button class="tab-btn"        id="tabExpenses" onclick="switchTab('expenses')">My expenses</button>
+  </div>
+
+  <!-- ========================
+       FRIENDS PAGE
+  ========================= -->
+  <section class="page active" id="pageFriends">
+
+    <button class="btn-grad" onclick="openAddFriend()">+ Add Friend</button>
+
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input
+        class="search-input"
+        id="friendSearch"
+        type="text"
+        placeholder="Search friends..."
+        oninput="renderFriends()"
+      />
+    </div>
+
+    <div class="friends-list" id="friendsList"></div>
+
+  </section>
+
+  <!-- ========================
+       MY EXPENSES PAGE
+  ========================= -->
+  <section class="page" id="pageExpenses">
+
+    <!-- Summary row -->
+    <div class="summary-row">
+
+      <div class="summary-card">
+        <div class="sc-label">Spent today</div>
+        <div class="sc-amount" id="spentToday">₹0</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="sc-top">
+          <div class="sc-label">Spent this</div>
+          <div class="period-toggle">
+            <button class="period-btn active" id="pW" onclick="setPeriod('W',this)">W</button>
+            <button class="period-btn"        id="pM" onclick="setPeriod('M',this)">M</button>
+            <button class="period-btn"        id="pY" onclick="setPeriod('Y',this)">Y</button>
+          </div>
+        </div>
+        <div class="sc-amount" id="spentPeriod">₹0</div>
+        <div class="sc-sub"    id="periodLabel">last 7 days</div>
+      </div>
+
+    </div>
+
+    <!-- Add / History tabs -->
+    <div class="exp-tab-row">
+      <button class="exp-tab-btn active" id="etAdd"     onclick="switchExpTab('add')">Add</button>
+      <button class="exp-tab-btn"        id="etHistory" onclick="switchExpTab('history')">History</button>
+    </div>
+
+    <!-- ADD EXPENSE FORM -->
+    <div id="sectionAdd">
+      <div class="exp-form-card">
+        <div class="form-title">Add an expense</div>
+        <div class="exp-inputs">
+          <div class="amount-wrap">
+            <span class="rupee">₹</span>
+            <input class="amount-input" id="expAmt"  type="number" min="0" placeholder="0" />
+          </div>
+          <input class="desc-input" id="expDesc" type="text" placeholder="What was it for? e.g. Tea" />
+        </div>
+        <button class="btn-grad" onclick="saveExpense()">Save expense</button>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div id="sectionHistory" style="display:none">
+      <div class="history-list" id="historyList"></div>
+      <button class="reset-btn" id="resetBtn" onclick="resetExpenses()">Reset all expenses</button>
+    </div>
+
+  </section>
+
+</div>
+
+<!-- ADD FRIEND MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title">Add a friend</div>
+    <input class="field-input" id="newFriendName" type="text" placeholder="Friend's name" />
+    <div class="modal-btns">
+      <button class="btn-cancel"      onclick="closeAddFriend()">Cancel</button>
+      <button class="btn-add-confirm" onclick="confirmAddFriend()">Add Friend</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
