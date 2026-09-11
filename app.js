@@ -156,11 +156,14 @@ function renderFriends() {
 
   list.innerHTML = shown.map(f => {
     const bal   = getBalance(f.id);
+    // bal = theygive - igive
+    // bal < 0 → I gave more → friend owes me → green
+    // bal > 0 → friend gave more → I owe friend → red
     const balEl = bal === 0
       ? `<span class="friend-balance zero">Settled</span>`
-      : bal > 0
-        ? `<span class="friend-balance pos">+₹${fmt(bal)}</span>`
-        : `<span class="friend-balance neg">-₹${fmt(Math.abs(bal))}</span>`;
+      : bal < 0
+        ? `<span class="friend-balance pos">owes ₹${fmt(Math.abs(bal))}</span>`
+        : `<span class="friend-balance neg">you owe ₹${fmt(bal)}</span>`;
 
     const avatarInner = f.photo
       ? `<img src="${f.photo}" alt="${escHtml(f.name)}" />`
@@ -183,10 +186,10 @@ function renderFriends() {
 function getLedger(fid) { return ledger[fid] || []; }
 
 function getBalance(fid) {
-  // positive = they owe me, negative = I owe them
-  return getLedger(fid).reduce((sum, e) => {
-    return sum + (e.type === 'theygive' ? e.amount : -e.amount);
-  }, 0);
+  // positive = friend owes me (I gave more), negative = I owe friend (they gave more)
+  const ig = getTotal(fid, 'igive');
+  const tg = getTotal(fid, 'theygive');
+  return tg - ig;  // same as refreshDetailSummary: netBalance = friendGivesMe - iGive
 }
 
 function getTotal(fid, type) {
@@ -258,24 +261,31 @@ function openFriendDetail(fid) {
 }
 
 function refreshDetailSummary(fid) {
-  const f   = friends.find(x => x.id === fid);
-  const ig  = getTotal(fid, 'igive');
-  const tg  = getTotal(fid, 'theygive');
-  const bal = getBalance(fid);
+  const f  = friends.find(x => x.id === fid);
+  const ig = getTotal(fid, 'igive');     // total I gave to friend
+  const tg = getTotal(fid, 'theygive'); // total friend gave to me
 
-  document.getElementById('detailIGive').textContent   = `₹${fmt(ig)}`;
+  document.getElementById('detailIGive').textContent    = `₹${fmt(ig)}`;
   document.getElementById('detailTheyGive').textContent = `₹${fmt(tg)}`;
 
+  // netBalance = friendGivesMe - iGive
+  // positive  → friend still owes me  → "Ammar gives you ₹X"
+  // negative  → I still owe friend    → "You give Ammar ₹X"
+  // zero      → settled
+  const netBalance = tg - ig;
   const nb = document.getElementById('netBalance');
-  if (bal === 0) {
-    nb.textContent  = 'All settled 🎉';
-    nb.className    = 'net-balance';
-  } else if (bal > 0) {
-    nb.textContent  = `${f.name} gives you ₹${fmt(bal)}`;
-    nb.className    = 'net-balance positive';
+
+  if (netBalance === 0) {
+    nb.textContent = 'Settled 🎉';
+    nb.className   = 'net-balance';
+  } else if (netBalance < 0) {
+    // I gave more than friend gave me → friend owes me the difference
+    nb.textContent = `${f.name} gives you ₹${fmt(Math.abs(netBalance))}`;
+    nb.className   = 'net-balance positive';
   } else {
-    nb.textContent  = `You give ${f.name} ₹${fmt(Math.abs(bal))}`;
-    nb.className    = 'net-balance negative';
+    // Friend gave more than I gave → I owe friend the difference
+    nb.textContent = `You give ${f.name} ₹${fmt(netBalance)}`;
+    nb.className   = 'net-balance negative';
   }
 }
 
