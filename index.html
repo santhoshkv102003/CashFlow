@@ -9,59 +9,122 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>PayBuddy</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=2" />
+  <link rel="stylesheet" href="style.css?v=3" />
 </head>
 <body>
 
 <div id="app">
 
-  <!-- HEADER -->
-  <header class="header">
+  <!-- ══════════════════════════════
+       HEADER
+  ══════════════════════════════ -->
+  <header class="header" id="mainHeader">
+    <button class="btn-back" id="btnBack" onclick="goBack()" style="display:none">&#8592;</button>
     <span class="logo-icon">₹</span>
-    <span class="logo-text">PayBuddy</span>
+    <span class="logo-text" id="headerTitle">PayBuddy</span>
   </header>
 
-  <!-- MAIN TAB STRIP -->
-  <div class="tab-strip">
+  <!-- ══════════════════════════════
+       MAIN TABS  (Friends / My expenses)
+  ══════════════════════════════ -->
+  <div class="tab-strip" id="mainTabStrip">
     <button class="tab-btn active" id="tabFriends"  onclick="switchTab('friends')">Friends</button>
     <button class="tab-btn"        id="tabExpenses" onclick="switchTab('expenses')">My expenses</button>
   </div>
 
-  <!-- ========================
-       FRIENDS PAGE
-  ========================= -->
-  <section class="page active" id="pageFriends">
-
+  <!-- ══════════════════════════════
+       SCREEN: FRIENDS LIST
+  ══════════════════════════════ -->
+  <section class="screen active" id="screenFriends">
     <button class="btn-grad" onclick="openAddFriend()">+ Add Friend</button>
-
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
-      <input
-        class="search-input"
-        id="friendSearch"
-        type="text"
-        placeholder="Search friends..."
-        oninput="renderFriends()"
-      />
+      <input class="search-input" id="friendSearch" type="text"
+             placeholder="Search friends..." oninput="renderFriends()" />
+    </div>
+    <div class="friends-list" id="friendsList"></div>
+  </section>
+
+  <!-- ══════════════════════════════
+       SCREEN: FRIEND DETAIL
+  ══════════════════════════════ -->
+  <section class="screen" id="screenFriendDetail">
+
+    <!-- Avatar + name -->
+    <div class="detail-hero">
+      <div class="avatar-wrap" id="detailAvatarWrap">
+        <div class="avatar avatar-lg" id="detailAvatar"></div>
+        <label class="camera-badge" title="Change photo">
+          📷<input type="file" accept="image/*" id="avatarFileInput" style="display:none" onchange="handleAvatarUpload(event)" />
+        </label>
+      </div>
+      <div class="detail-name" id="detailName"></div>
     </div>
 
-    <div class="friends-list" id="friendsList"></div>
+    <!-- Summary boxes -->
+    <div class="detail-boxes">
+      <div class="detail-box">
+        <div class="db-label">I give</div>
+        <div class="db-amount red" id="detailIGive">₹0</div>
+      </div>
+      <div class="detail-box">
+        <div class="db-label" id="detailTheyLabel">They give me</div>
+        <div class="db-amount green" id="detailTheyGive">₹0</div>
+      </div>
+    </div>
+
+    <!-- Net balance -->
+    <div class="net-balance" id="netBalance">All settled 🎉</div>
+
+    <!-- Action buttons -->
+    <div class="action-row">
+      <button class="action-btn red-btn"   onclick="openEntryForm('igive')">I Give</button>
+      <button class="action-btn green-btn" id="theyGiveBtn" onclick="openEntryForm('theygive')">They Give Me</button>
+      <button class="action-btn outline-btn" onclick="showFriendHistory()">History</button>
+    </div>
 
   </section>
 
-  <!-- ========================
-       MY EXPENSES PAGE
-  ========================= -->
-  <section class="page" id="pageExpenses">
+  <!-- ══════════════════════════════
+       SCREEN: ENTRY FORM  (add / edit)
+  ══════════════════════════════ -->
+  <section class="screen" id="screenEntryForm">
 
-    <!-- Summary row -->
+    <div class="exp-form-card">
+      <div class="form-title" id="entryFormTitle">Add entry</div>
+      <div class="exp-inputs">
+        <div class="amount-wrap">
+          <span class="rupee">₹</span>
+          <input class="amount-input" id="entryAmt" type="number" min="0" placeholder="0" />
+        </div>
+        <input class="desc-input" id="entryDesc" type="text" placeholder="Purpose (e.g. Lunch)" />
+      </div>
+      <button class="btn-grad" onclick="saveEntry()">Save</button>
+    </div>
+
+    <!-- Recent entries for this category -->
+    <div class="section-label" id="recentLabel"></div>
+    <div class="history-list" id="entryRecentList"></div>
+
+  </section>
+
+  <!-- ══════════════════════════════
+       SCREEN: FRIEND HISTORY
+  ══════════════════════════════ -->
+  <section class="screen" id="screenFriendHistory">
+    <div class="history-sections" id="friendHistorySections"></div>
+  </section>
+
+  <!-- ══════════════════════════════
+       SCREEN: MY EXPENSES
+  ══════════════════════════════ -->
+  <section class="screen" id="screenExpenses">
+
     <div class="summary-row">
-
       <div class="summary-card">
         <div class="sc-label">Spent today</div>
         <div class="sc-amount" id="spentToday">₹0</div>
       </div>
-
       <div class="summary-card">
         <div class="sc-top">
           <div class="sc-label">Spent this</div>
@@ -74,23 +137,20 @@
         <div class="sc-amount" id="spentPeriod">₹0</div>
         <div class="sc-sub"    id="periodLabel">last 7 days</div>
       </div>
-
     </div>
 
-    <!-- Add / History tabs -->
     <div class="exp-tab-row">
       <button class="exp-tab-btn active" id="etAdd"     onclick="switchExpTab('add')">Add</button>
       <button class="exp-tab-btn"        id="etHistory" onclick="switchExpTab('history')">History</button>
     </div>
 
-    <!-- ADD EXPENSE FORM -->
     <div id="sectionAdd">
       <div class="exp-form-card">
         <div class="form-title">Add an expense</div>
         <div class="exp-inputs">
           <div class="amount-wrap">
             <span class="rupee">₹</span>
-            <input class="amount-input" id="expAmt"  type="number" min="0" placeholder="0" />
+            <input class="amount-input" id="expAmt" type="number" min="0" placeholder="0" />
           </div>
           <input class="desc-input" id="expDesc" type="text" placeholder="What was it for? e.g. Tea" />
         </div>
@@ -98,7 +158,6 @@
       </div>
     </div>
 
-    <!-- HISTORY -->
     <div id="sectionHistory" style="display:none">
       <div class="history-list" id="historyList"></div>
       <button class="reset-btn" id="resetBtn" onclick="resetExpenses()">Reset all expenses</button>
@@ -106,9 +165,12 @@
 
   </section>
 
-</div>
+</div><!-- /#app -->
 
-<!-- ADD FRIEND MODAL -->
+
+<!-- ══════════════════════════════
+     MODAL: ADD FRIEND
+══════════════════════════════ -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-title">Add a friend</div>
@@ -123,6 +185,6 @@
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<script src="app.js?v=2"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>
