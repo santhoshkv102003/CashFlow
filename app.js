@@ -276,15 +276,15 @@ function refreshDetailSummary(fid) {
   const nb = document.getElementById('netBalance');
 
   if (netBalance === 0) {
-    nb.textContent = 'Settled 🎉';
+    nb.textContent = 'Pending : Settled 🎉';
     nb.className   = 'net-balance';
   } else if (netBalance < 0) {
-    // I gave more than friend gave me → friend owes me the difference
-    nb.textContent = `${f.name} gives you ₹${fmt(Math.abs(netBalance))}`;
+    // I gave more → friend owes me
+    nb.textContent = `Pending : ${f.name} gives to you ₹${fmt(Math.abs(netBalance))}`;
     nb.className   = 'net-balance positive';
   } else {
-    // Friend gave more than I gave → I owe friend the difference
-    nb.textContent = `You give ${f.name} ₹${fmt(netBalance)}`;
+    // Friend gave more → I owe friend
+    nb.textContent = `Pending : You give to ${f.name} ₹${fmt(netBalance)}`;
     nb.className   = 'net-balance negative';
   }
 }
